@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-l(ij!4l%zyeoy$g1cvp!m$i9r4+b8m8ybe)9dyqxx8jo)c@k9m
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "shop",
+    "graphene_django",
 ]
 
 MIDDLEWARE = [
@@ -49,6 +50,8 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+GRAPHENE = {"SCHEMA": "e_shop.schema.schema"}
+
 
 ROOT_URLCONF = "e_shop.urls"
 
