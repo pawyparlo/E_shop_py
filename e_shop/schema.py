@@ -1,10 +1,10 @@
 import graphene
 
 # import e_shop.shop.schema as shop
-from shop.schema import Query
+from shop.schema import ProductsQuery
 
 
-class Query(Query):
+class Query(ProductsQuery):
     pass
 
 
@@ -12,4 +12,4 @@ class Query(Query):
 #     pass
 
 
-schema = graphene.Schema(query=Query)
+schema = graphene.Schema(query=ProductsQuery)

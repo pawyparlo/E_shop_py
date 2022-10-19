@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "shop",
+    "shop.apps.ShopConfig",
+    "orders.apps.OrdersConfig",
     "graphene_django",
 ]
 

@@ -27,12 +27,17 @@ class ProductType(DjangoObjectType):
         )
 
 
-class Query(graphene.ObjectType):
+class ProductsQuery(graphene.ObjectType):
+    categories = graphene.List(CategoryType)
     product = graphene.Field(ProductType, product_id=graphene.ID(required=True))
     products = graphene.List(ProductType)
     products_by_category = graphene.List(
         ProductType, category_name=graphene.String(required=True)
     )
+
+    @staticmethod
+    def resolve_categories(_root, _info):
+        return Category.objects.all()
 
     @staticmethod
     def resolve_products(_root, _info):
@@ -47,4 +52,4 @@ class Query(graphene.ObjectType):
         return Product.objects.filter(category__name=category_name)
 
 
-schema = graphene.Schema(query=Query)
+schema = graphene.Schema(query=ProductsQuery)
