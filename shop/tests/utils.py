@@ -13,6 +13,7 @@ class QueryRunner:
         response = cursor.query(query, **kwargs)
         if "errors" in json.loads(response.content):
             raise GraphQLError(json.loads(response.content)["errors"][0]["message"])
+        return json.loads(response.content)
 
 
 class Generate:
@@ -20,8 +21,11 @@ class Generate:
 
     @staticmethod
     def category(**kwargs):
+        name = Generate.name_field(main_part="Generic category")
         if "name" not in kwargs:
-            kwargs["name"] = Generate.name_field(main_part="Generic category")
+            kwargs["name"] = name
+        if "slug" not in kwargs:
+            kwargs["slug"] = name.lower().replace(" ", "")
         category = Category.objects.create(**kwargs)
         return category
 
@@ -40,12 +44,12 @@ class Generate:
 
     @staticmethod
     def _id_field():
-        Generate._id =+ 1
+        Generate._id = +1
         return Generate._id
 
     @staticmethod
-    def name_field(main_part="Generic name"):
-        return " ".join([main_part, str(uuid.uuid4())])
+    def name_field(main_part="Generic"):
+        return "".join([main_part, str(uuid.uuid4())])
 
     @staticmethod
     def price_field():

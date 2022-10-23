@@ -1,8 +1,8 @@
-from django.test import TestCase
 from .utils import QueryRunner, Generate
+from graphene_django.utils.testing import GraphQLTestCase
 
 
-class QueriesTest(TestCase):
+class CategoriesQueries:
     class Fields:
         CATEGORY_FIELDS = """
             id,
@@ -18,8 +18,25 @@ class QueriesTest(TestCase):
         }}
     """
 
-    def test_resolve_products_query(self):
-        pass
+    def get_category(cursor, **kwargs):
+        return QueryRunner.run(cursor, CategoriesQueries.GET_CATEGORIES, **kwargs)[
+            "data"
+        ]["categories"]
 
-    def test_second_test(self):
-        pass
+
+class QueryCategoriesTestCase(GraphQLTestCase):
+    def setUp(self):
+        self.category_1 = Generate.category()
+        self.category_2 = Generate.category()
+        self.category_3 = Generate.category()
+
+    def test_query_all_categories(self):
+        categories = CategoriesQueries.get_category(self)
+
+        self.assertEqual(len(categories), 3)
+
+        result_categories_names = [category["name"] for category in categories]
+
+        self.assertTrue(self.category_1.name in result_categories_names)
+        self.assertTrue(self.category_2.name in result_categories_names)
+        self.assertTrue(self.category_3.name in result_categories_names)
