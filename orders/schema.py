@@ -17,7 +17,7 @@ class OrderItemType(DjangoObjectType):
 class OrderType(DjangoObjectType):
     class Meta:
         model = Order
-        fields = ("id", "first_name", "last_name", "email", "address", "city")
+        fields = ("id", "first_name", "last_name", "email", "address", "city", "paid", "items")
 
 
 class OrderItemHelper:
@@ -25,9 +25,10 @@ class OrderItemHelper:
     def assign_ordered_items_to_order(cls, order, ordered_items):
         if ordered_items:
             for ordered_item in ordered_items:
+                print(ordered_item)
                 item = OrderItem(
                     order=order,
-                    product=Product(pk=ordered_item.product.id),
+                    product=Product(pk=ordered_item.product_id),
                     quantity=ordered_item.quantity,
                 )
                 item.save()
@@ -42,6 +43,7 @@ class OrderHelper:
             "email",
             "address",
             "city",
+            "paid"
         ]
         for key, value in order_input.items():
             if key in standard_fields:
@@ -62,19 +64,6 @@ class OrderCreateInput(graphene.InputObjectType):
     ordered_items = graphene.List(OrderItemInput)
 
 
-class QueryOrder(graphene.ObjectType):
-    order = graphene.Field(OrderType, order_id=graphene.ID(required=True))
-    orders = graphene.List(OrderType)
-
-    @staticmethod
-    def resolve_order(_root, _info, order_id):
-        return Order.objects.get(pk=order_id)
-
-    @staticmethod
-    def resolve_orders(_root, _info):
-        return Order.objects.all()
-
-
 class CreateOrder(graphene.Mutation):
     class Arguments:
         order_input = OrderCreateInput()
@@ -92,3 +81,24 @@ class CreateOrder(graphene.Mutation):
             OrderItemHelper.assign_ordered_items_to_order(
                 order=order, ordered_items=order_input.ordered_items
             )
+
+        order.save()
+
+        return CreateOrder(completed=True)
+
+
+class QueryOrder(graphene.ObjectType):
+    order = graphene.Field(OrderType, order_id=graphene.ID(required=True))
+    orders = graphene.List(OrderType)
+
+    @staticmethod
+    def resolve_order(_root, _info, order_id):
+        return Order.objects.get(pk=order_id)
+
+    @staticmethod
+    def resolve_orders(_root, _info):
+        return Order.objects.all()
+
+
+class OrderMutation(graphene.ObjectType):
+    create_order = CreateOrder().Field()

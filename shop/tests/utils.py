@@ -5,6 +5,7 @@ import uuid
 from graphql import GraphQLError
 from shop.models.products import Product
 from shop.models.categories import Category
+from orders.models import Order, OrderItem
 
 
 class QueryRunner:
@@ -43,6 +44,40 @@ class Generate:
         return product
 
     @staticmethod
+    def item(**kwargs):
+        if "product" not in kwargs:
+            pass
+
+    @staticmethod
+    def order(**kwargs):
+        if "first_name" not in kwargs:
+            kwargs["first_name"] = Generate.human_first_name_field()
+        if "last_name" not in kwargs:
+            kwargs["last_name"] = Generate.human_last_name_field()
+        if "email" not in kwargs:
+            kwargs["email"] = Generate.email(
+                first_name=kwargs["first_name"], last_name=kwargs["last_name"]
+            )
+        if "address" not in kwargs:
+            kwargs["address"] = Generate.address()
+        if "city" not in kwargs:
+            kwargs["city"] = Generate.city()
+
+        order = Order.objects.create(**kwargs)
+
+        if "items" not in kwargs:
+            products = [Generate.product() for _ in range(0, 5)]
+            ordered_items = [
+                OrderItem.objects.create(
+                    product=product, order=order, quantity=random.randint(0, 10)
+                )
+                for product in products
+            ]
+
+        print(OrderItem.objects.filter(order=order))
+        return order
+
+    @staticmethod
     def _id_field():
         Generate._id = +1
         return Generate._id
@@ -50,6 +85,38 @@ class Generate:
     @staticmethod
     def name_field(main_part="Generic"):
         return "".join([main_part, str(uuid.uuid4())])
+
+    @staticmethod
+    def human_first_name_field(name=None):
+        choices = ["Angie", "Joe", "Bradd", "Stanley"]
+        if name:
+            return name
+        return choices[random.randint(0, len(choices) - 1)]
+
+    @staticmethod
+    def human_last_name_field(name=None):
+        choices = ["Kubrick", "Monroe", "Wesley", "Potter"]
+        if name:
+            return name
+        return choices[random.randint(0, len(choices) - 1)]
+
+    @staticmethod
+    def email(first_name, last_name):
+        return f"{first_name}.{last_name}@test.com"
+
+    @staticmethod
+    def address(address=None):
+        streets = ["avenue", "East side street", "West side street", "avenue"]
+        if address:
+            return address
+        return f"{random.randint(1,30)} {streets[random.randint(0, len(streets) - 1)]}"
+
+    @staticmethod
+    def city(name=None):
+        choices = ["Seattle", "New York", "Chicago", "New Yersey"]
+        if name:
+            return name
+        return choices[random.randint(0, len(choices) - 1)]
 
     @staticmethod
     def price_field():
