@@ -50,6 +50,3 @@ class ProductsQuery(graphene.ObjectType):
     @staticmethod
     def resolve_products_by_category(_root, _info, category_name):
         return Product.objects.filter(category__name=category_name)
-
-
-schema = graphene.Schema(query=ProductsQuery)
