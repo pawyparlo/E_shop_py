@@ -1,6 +1,8 @@
 from django.test import TestCase
 from graphene_django.utils.testing import GraphQLTestCase
-from shop.tests.utils import QueryRunner, Generate
+from shop.tests.utils import QueryRunner, Generate, Assert
+from orders.models import Order
+import json
 
 
 class OrderQueries:
@@ -28,7 +30,9 @@ class OrderQueries:
 
     @staticmethod
     def get_order(cursor, **kwargs):
-        return QueryRunner.run(cursor, OrderQueries.GET_ORDER, **kwargs)
+        return QueryRunner.run(cursor, OrderQueries.GET_ORDER, **kwargs)["data"][
+            "order"
+        ]
 
     GET_ORDER = f"""
         query getOrder($orderId: ID!) {{
@@ -57,7 +61,9 @@ class OrderQueries:
 
     @staticmethod
     def get_orders(cursor, **kwargs):
-        return QueryRunner.run(cursor, OrderQueries.GET_ORDERS, **kwargs)
+        return QueryRunner.run(cursor, OrderQueries.GET_ORDERS, **kwargs)["data"][
+            "orders"
+        ]
 
     GET_ORDERS = f"""
         query getOrders {{
@@ -110,10 +116,45 @@ class QueryOrderTestCase(GraphQLTestCase):
             category=self.category_1, name="Orange", price=25.1, available=True
         )
 
-    def test_test(self):
-        order = Generate.order()
-        print(order.first_name)
-        print(order.last_name)
-        print(order.email)
-        print(order.address)
-        print(order.city)
+    def test_query_orders(self):
+        order_1 = Generate.order()
+        order_2 = Generate.order()
+        order_3 = Generate.order()
+
+        orders = OrderQueries.get_orders(self)
+
+        Assert.has_params(
+            orders[0],
+            ["firstName", "lastName", "email", "address", "city", "items"],
+        )
+        Assert.has_params(
+            orders[1],
+            ["firstName", "lastName", "email", "address", "city", "items"],
+        )
+        Assert.has_params(
+            orders[2],
+            ["firstName", "lastName", "email", "address", "city", "items"],
+        )
+
+        self.assertEqual(len(orders), 3)
+        self.assertEqual(len(Order.objects.all()), 3)
+        self.assertEqual(len(orders[0]["items"]), 5)
+        self.assertEqual(len(orders[1]["items"]), 5)
+        self.assertEqual(len(orders[2]["items"]), 5)
+
+    def test_query_order(self):
+        order_1 = Generate.order()
+
+        order = OrderQueries.get_order(self, variables={"orderId": 1})
+
+        Assert.has_params(
+            order,
+            ["firstName", "lastName", "email", "address", "city", "items"],
+        )
+
+        self.assertEqual(len(order["items"]), 5)
+        self.assertEqual(len(Order.objects.all()), 1)
+
+
+class CreateOrderTestCase(GraphQLTestCase):
+    pass

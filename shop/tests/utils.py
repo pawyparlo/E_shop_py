@@ -2,6 +2,7 @@ import json
 import random
 from unicodedata import category
 import uuid
+from typing import List
 from graphql import GraphQLError
 from shop.models.products import Product
 from shop.models.categories import Category
@@ -74,7 +75,6 @@ class Generate:
                 for product in products
             ]
 
-        print(OrderItem.objects.filter(order=order))
         return order
 
     @staticmethod
@@ -121,3 +121,16 @@ class Generate:
     @staticmethod
     def price_field():
         return random.randint(10, 100)
+
+
+class Assert:
+    @staticmethod
+    def has_params(dictionary: dict, params_name: List[str]):
+        warnings = []
+        for param_name in params_name:
+            try:
+                dictionary[param_name]
+            except Exception:
+                warnings.append(KeyError("Param not found"))
+        if warnings:
+            raise BaseException(warnings)

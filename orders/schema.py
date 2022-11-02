@@ -17,7 +17,16 @@ class OrderItemType(DjangoObjectType):
 class OrderType(DjangoObjectType):
     class Meta:
         model = Order
-        fields = ("id", "first_name", "last_name", "email", "address", "city", "paid", "items")
+        fields = (
+            "id",
+            "first_name",
+            "last_name",
+            "email",
+            "address",
+            "city",
+            "paid",
+            "items",
+        )
 
 
 class OrderItemHelper:
@@ -25,7 +34,6 @@ class OrderItemHelper:
     def assign_ordered_items_to_order(cls, order, ordered_items):
         if ordered_items:
             for ordered_item in ordered_items:
-                print(ordered_item)
                 item = OrderItem(
                     order=order,
                     product=Product(pk=ordered_item.product_id),
@@ -43,7 +51,7 @@ class OrderHelper:
             "email",
             "address",
             "city",
-            "paid"
+            "paid",
         ]
         for key, value in order_input.items():
             if key in standard_fields:
