@@ -2,7 +2,7 @@ import json
 import random
 from unicodedata import category
 import uuid
-from typing import List
+from typing import List, Dict
 from graphql import GraphQLError
 from shop.models.products import Product
 from shop.models.categories import Category
@@ -23,11 +23,12 @@ class Generate:
 
     @staticmethod
     def category(**kwargs):
-        name = Generate.name_field(main_part="Generic category")
         if "name" not in kwargs:
+            name = Generate.name_field(main_part="Generic category")
             kwargs["name"] = name
-        if "slug" not in kwargs:
             kwargs["slug"] = name.lower().replace(" ", "")
+
+        kwargs["slug"] = kwargs["name"].lower().replace(" ", "")
         category = Category.objects.create(**kwargs)
         return category
 
@@ -43,11 +44,6 @@ class Generate:
             kwargs["price"] = Generate.price_field()
         product = Product.objects.create(**kwargs)
         return product
-
-    @staticmethod
-    def item(**kwargs):
-        if "product" not in kwargs:
-            pass
 
     @staticmethod
     def order(**kwargs):
@@ -131,6 +127,16 @@ class Assert:
             try:
                 dictionary[param_name]
             except Exception:
-                warnings.append(KeyError("Param not found"))
+                warnings.append(KeyError(f"Param '{param_name}' not found"))
         if warnings:
             raise BaseException(warnings)
+
+
+class UtilsHelpers:
+    @staticmethod
+    def next_missing_field(fields: List[str], input: Dict[str, str]):
+        for field_name in fields:
+            try:
+                input[field_name]
+            except:
+                return field_name
