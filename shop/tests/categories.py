@@ -7,6 +7,7 @@ class CategoriesQueries:
         CATEGORY_FIELDS = """
             id,
             name,
+            image,
             slug
         """
 

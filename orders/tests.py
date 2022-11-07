@@ -37,24 +37,7 @@ class OrderQueries:
     GET_ORDER = f"""
         query getOrder($orderId: ID!) {{
             order(orderId: $orderId) {{
-                firstName
-                lastName
-                email
-                address
-                city
-                paid
-                items {{
-                quantity
-                product {{
-                    id
-                    name
-                    category {{
-                    name
-                    }}
-                    price
-                    available
-                    }}
-                }}
+                {Fields.ORDER_FIELDS}
             }}
         }}
     """
@@ -68,24 +51,7 @@ class OrderQueries:
     GET_ORDERS = f"""
         query getOrders {{
             orders {{
-                firstName
-                lastName
-                email
-                address
-                city
-                paid
-                items {{
-                quantity
-                product {{
-                    id
-                    name
-                    category {{
-                    name
-                    }}
-                    price
-                    available
-                    }}
-                }}
+                {Fields.ORDER_FIELDS}
             }}
         }}
     """
@@ -359,7 +325,7 @@ class CreateOrderTestCase(GraphQLTestCase):
             {"productId": 1, "quantity": 10},
             {"productId": 2, "quantity": 5},
             {"productId": 3, "quantity": 15},
-            ]
+        ]
 
         order_input = {
             "firstName": Generate.human_first_name_field(),
